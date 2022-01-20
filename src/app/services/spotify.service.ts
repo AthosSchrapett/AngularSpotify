@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 
 import Spotify from 'spotify-web-api-js';
 import { IUsuario } from '../interfaces/IUsuario';
+import { SpotifyUserParaUsuario } from '../common/spotifyHelper';
 
 @Injectable({
   providedIn: 'root'
@@ -16,19 +17,19 @@ export class SpotifyService {
     this.spotifyApi = new Spotify();
   }
 
-  async inicializarServico() {
+  async inicializarUsuario() {
     if (!!this.usuario)
       return true;
 
     const token = localStorage.getItem("token");
 
-    if (!!token)
+    if (!token)
       return false
 
     try {
       this.definirAccessToken(token);
       await this.obterSpotifyUser();
-      return true
+      return !!this.usuario;
 
     } catch (ex) {
       return false;
@@ -38,7 +39,7 @@ export class SpotifyService {
 
   async obterSpotifyUser() {
     const userInfo = await this.spotifyApi.getMe();
-    console.log(userInfo)
+    this.usuario = SpotifyUserParaUsuario(userInfo);
   }
 
   obterUrlLogin() {
